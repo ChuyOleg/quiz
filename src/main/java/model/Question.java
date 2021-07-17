@@ -37,4 +37,13 @@ public class Question {
     public void setQuestion_text(String question_text) {
         this.question_text = question_text;
     }
+
+    @Override
+    public String toString() {
+        return "Question{" +
+                "question_id=" + question_id +
+                ", category_id=" + category_id +
+                ", question_text='" + question_text + '\'' +
+                '}';
+    }
 }

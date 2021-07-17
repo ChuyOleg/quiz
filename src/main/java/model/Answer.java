@@ -58,4 +58,16 @@ public class Answer {
             this.correct_answer_num = correct_answer_num;
         }
     }
+
+    @Override
+    public String toString() {
+        return "Answer{" +
+                "answer_id=" + answer_id +
+                ", question_id=" + question_id +
+                ", answer_1='" + answer_1 + '\'' +
+                ", answer_2='" + answer_2 + '\'' +
+                ", answer_3='" + answer_3 + '\'' +
+                ", correct_answer_num=" + correct_answer_num +
+                '}';
+    }
 }
