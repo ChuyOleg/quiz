@@ -18,3 +18,12 @@ create table answers (
 	correct_answer_num int not null,
 	check (correct_answer_num >= 1 and correct_answer_num <= 3)
 );
+
+-- function for getting 3 random categories
+CREATE OR REPLACE FUNCTION getThreeRandomCategories()
+	returns table (category_id int, category_name varchar(128)) as $$
+BEGIN
+	RETURN QUERY
+		SELECT * FROM categories ORDER BY random() LIMIT 3;
+END;
+$$ LANGUAGE plpgsql;

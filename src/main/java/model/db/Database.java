@@ -1,7 +1,7 @@
-package db;
+package model.db;
 
-import model.Category;
-import model.Question;
+import model.entities.Category;
+import model.entities.Question;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -9,11 +9,11 @@ import java.util.List;
 
 public class Database {
 
-    private String url = DB_connectData.getUrl();
-    private String user = DB_connectData.getUser();
-    private String password = DB_connectData.getPassword();
+    private static String url = DB_connectData.getUrl();
+    private static String user = DB_connectData.getUser();
+    private static String password = DB_connectData.getPassword();
 
-    public List<Category> getAllCategories() throws SQLException {
+    public static List<Category> getAllCategories() throws SQLException {
 
         final Connection connection = DriverManager.getConnection(url, user, password);
 
@@ -44,7 +44,7 @@ public class Database {
 
     }
 
-    public List<Question> getAllQuestions() throws SQLException {
+    public static List<Question> getAllQuestions() throws SQLException {
 
         final Connection connection = DriverManager.getConnection(url, user, password);
 
@@ -77,7 +77,7 @@ public class Database {
 
     }
 
-    public Question getQuestion(long question_id) throws SQLException {
+    public static Question getQuestion(long question_id) throws SQLException {
 
         final Connection connection = DriverManager.getConnection(url, user, password);
 
@@ -108,6 +108,39 @@ public class Database {
                 System.out.println("Haven't foound the question with question id = " + question_id);
                 return null;
             }
+
+        } finally {
+            connection.close();
+        }
+
+    }
+
+    public static List<Category> getThreeRandomCategories() throws SQLException {
+
+        final Connection connection = DriverManager.getConnection(url, user, password);
+
+        connection.setAutoCommit(false);
+
+        try (PreparedStatement stmt = connection.prepareStatement("SELECT * FROM getThreeRandomCategories()")) {
+
+            final ResultSet resultSet =  stmt.executeQuery();
+
+            List<Category> categories = new ArrayList<>();
+
+            while (resultSet.next()) {
+                long category_id = resultSet.getLong("category_id");
+                String category_name = resultSet.getString("category_name");
+
+                Category category = new Category(category_id, category_name);
+
+                categories.add(category);
+
+            }
+
+            resultSet.close();
+            stmt.close();
+
+            return categories;
 
         } finally {
             connection.close();
