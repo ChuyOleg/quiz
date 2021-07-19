@@ -3,6 +3,7 @@ package model.db;
 import model.entities.Answer;
 import model.entities.Category;
 import model.entities.Question;
+import model.exceptions.NonExistentCategoryException;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -148,11 +149,44 @@ public class Database {
 
     }
 
-    public void addQuestion(Category category, Question question, Answer answers) throws SQLException {
+    public void addQuestion(Category category, Question question, Answer answer) throws SQLException, NonExistentCategoryException {
 
         final Connection connection = DriverManager.getConnection(url, user, password);
 
         connection.setAutoCommit(false);
+
+        try (PreparedStatement stmt = connection.prepareStatement("SELECT * FROM categories where LOWER(category_name) like LOWER(?)")) {
+
+            stmt.setString(1, category.getCategory_name());
+            final ResultSet resultSet = stmt.executeQuery();
+
+            if (resultSet.next()) {
+                category.setCategory_id(resultSet.getLong("category_id"));
+                question.setCategory_id(category.getCategory_id());
+
+                String query = "INSERT INTO questions(category_id, question_text) values (?, ?)";
+                PreparedStatement question_stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+
+                question_stmt.setLong(1, question.getCategory_id());
+                question_stmt.setString(2, question.getQuestion_text());
+
+                question_stmt.executeUpdate();
+                ResultSet generatedKeys = question_stmt.getGeneratedKeys();
+                if (generatedKeys.next()) {
+
+                }
+
+                // get question_id
+                // insert into answers
+                // close all stmt and resultSets
+                // commit into db
+                // make method in controller
+
+            } else {
+                throw new NonExistentCategoryException();
+            }
+
+        }
 
     }
 

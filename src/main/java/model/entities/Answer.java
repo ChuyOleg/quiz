@@ -9,6 +9,33 @@ public class Answer {
     private String answer_3;
     private int correct_answer_num;
 
+    public Answer() {
+    }
+
+    public Answer(String answer_1, String answer_2, String answer_3, int correct_answer_num) {
+        this.answer_1 = answer_1;
+        this.answer_2 = answer_2;
+        this.answer_3 = answer_3;
+        this.correct_answer_num = correct_answer_num;
+    }
+
+    public Answer(long question_id, String answer_1, String answer_2, String answer_3, int correct_answer_num) {
+        this.question_id = question_id;
+        this.answer_1 = answer_1;
+        this.answer_2 = answer_2;
+        this.answer_3 = answer_3;
+        this.correct_answer_num = correct_answer_num;
+    }
+
+    public Answer(long answer_id, long question_id, String answer_1, String answer_2, String answer_3, int correct_answer_num) {
+        this.answer_id = answer_id;
+        this.question_id = question_id;
+        this.answer_1 = answer_1;
+        this.answer_2 = answer_2;
+        this.answer_3 = answer_3;
+        this.correct_answer_num = correct_answer_num;
+    }
+
     public long getAnswer_id() {
         return answer_id;
     }

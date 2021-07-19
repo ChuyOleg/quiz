@@ -2,6 +2,7 @@ package controller;
 
 import model.Model;
 import model.db.Database;
+import model.entities.Answer;
 import model.entities.Category;
 import model.entities.Question;
 import service.InputUtility;
@@ -21,9 +22,14 @@ public class Controller {
     }
 
     public void runProgram() throws SQLException {
+
+        view.printMessageWithNewLine(view.REQUEST_FOR_FILL_DB);
+        insertQuestionIntoDB();
+
         while(true) {
+            view.skipLines(1);
             Category selected_category = usersPickCategory();
-            System.out.println(selected_category.getCategory_name());
+            view.printMessageWithNewLine(selected_category.getCategory_name());
 
 //          get randomQuestion
 
@@ -47,6 +53,27 @@ public class Controller {
             }
         }
         return selected_category;
+    }
+
+    private void insertQuestionIntoDB() {
+        view.printMessageWithNewLine(view.PREPARATION_FOR_INSERTING_INTO_DB);
+        // create and show list with available categories for user
+        String category_name = InputUtility.inputStringValueWithScanner(view.WRITE_CATEGORY);
+        String question_text = InputUtility.inputStringValueWithScanner(view.WRITE_QUESTION);
+        String answer_1 = InputUtility.inputStringValueWithScanner(view.WRITE_FIRST_ANSWER);
+        String answer_2 = InputUtility.inputStringValueWithScanner(view.WRITE_SECOND_ANSWER);
+        String answer_3 = InputUtility.inputStringValueWithScanner(view.WRITE_THIRD_ANSWER);
+        int correct_answer_num = InputUtility.inputIntValueWithScanner(view.DETERMINE_NUMBER_OF_CORRECT_ANSWER, view.MESSAGE_FOR_WRONG_TYPE);
+        // generate exception for wrong int value (< 1 or > 3)
+
+        Category category = new Category(category_name);
+        Question question = new Question(question_text);
+        Answer answer = new Answer(answer_1, answer_2, answer_3, correct_answer_num);
+
+        System.out.println(category);
+        System.out.println(question);
+        System.out.println(answer);
+
     }
 
 }

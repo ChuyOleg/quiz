@@ -8,6 +8,15 @@ public class Question {
 
     public Question() {}
 
+    public Question(String question_text) {
+        this.question_text = question_text;
+    }
+
+    public Question(long category_id, String question_text) {
+        this.category_id = category_id;
+        this.question_text = question_text;
+    }
+
     public Question(long question_id, long category_id, String question_text) {
         this.question_id = question_id;
         this.category_id = category_id;
