@@ -1,5 +1,6 @@
 package model.db;
 
+import model.entities.Answer;
 import model.entities.Category;
 import model.entities.Question;
 
@@ -138,13 +139,20 @@ public class Database {
             }
 
             resultSet.close();
-            stmt.close();
 
             return categories;
 
         } finally {
             connection.close();
         }
+
+    }
+
+    public void addQuestion(Category category, Question question, Answer answers) throws SQLException {
+
+        final Connection connection = DriverManager.getConnection(url, user, password);
+
+        connection.setAutoCommit(false);
 
     }
 
