@@ -32,7 +32,6 @@ public class Database {
                 String category_name = resultSet.getString("category_name");
                 Category category = new Category(category_id, category_name);
                 categories.add(category);
-                System.out.println(category);
             }
 
             resultSet.close();
@@ -149,7 +148,7 @@ public class Database {
 
     }
 
-    public void addQuestion(Category category, Question question, Answer answer) throws SQLException, NonExistentCategoryException {
+    public static boolean addQuestion(Category category, Question question, Answer answer) throws SQLException {
 
         final Connection connection = DriverManager.getConnection(url, user, password);
 
@@ -182,10 +181,16 @@ public class Database {
                 // commit into db
                 // make method in controller
 
-            } else {
-                throw new NonExistentCategoryException();
+                return true;
+
             }
 
+            return false;
+
+        } finally {
+            System.out.println("Before");
+            connection.close();
+            System.out.println("After");
         }
 
     }

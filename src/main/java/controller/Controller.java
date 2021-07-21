@@ -1,5 +1,6 @@
 package controller;
 
+import controller.validator.Validator_Controller;
 import model.Model;
 import model.db.Database;
 import model.entities.Answer;
@@ -23,13 +24,28 @@ public class Controller {
 
     public void runProgram() throws SQLException {
 
-        view.printMessageWithNewLine(view.REQUEST_FOR_FILL_DB);
-        insertQuestionIntoDB();
+//        view.printMessageWithNewLine(view.REQUEST_FOR_FILL_DB);
+//        insertQuestionIntoDB();
 
         while(true) {
+
+            view.printMessageWithNewLine(view.INITIAL_CHOICE);
+            int action_num;
+            while (true) {
+                try {
+                    action_num = InputUtility.inputIntValueWithScanner(view.INITIAL_TEXT, view.MESSAGE_FOR_WRONG_TYPE);
+                    Validator_Controller.checkSelectedActionNumber(action_num);
+                    break;
+                } catch (Exception e) {
+                    view.printMessageWithNewLine(e.getMessage());
+                }
+            }
             view.skipLines(1);
-            Category selected_category = usersPickCategory();
-            view.printMessageWithNewLine(selected_category.getCategory_name());
+
+            takeDecision(action_num);
+//            view.skipLines(1);
+//            Category selected_category = usersPickCategory();
+//            view.printMessageWithNewLine(selected_category.getCategory_name());
 
 //          get randomQuestion
 
@@ -55,10 +71,10 @@ public class Controller {
         return selected_category;
     }
 
-    private void insertQuestionIntoDB() {
+    private void insertQuestionIntoDB() throws SQLException {
         view.printMessageWithNewLine(view.PREPARATION_FOR_INSERTING_INTO_DB);
-        // create and show list with available categories for user
-        String category_name = InputUtility.inputStringValueWithScanner(view.WRITE_CATEGORY);
+
+        String category_name = getCategoryNameFromUser();
         String question_text = InputUtility.inputStringValueWithScanner(view.WRITE_QUESTION);
         String answer_1 = InputUtility.inputStringValueWithScanner(view.WRITE_FIRST_ANSWER);
         String answer_2 = InputUtility.inputStringValueWithScanner(view.WRITE_SECOND_ANSWER);
@@ -70,10 +86,48 @@ public class Controller {
         Question question = new Question(question_text);
         Answer answer = new Answer(answer_1, answer_2, answer_3, correct_answer_num);
 
-        System.out.println(category);
-        System.out.println(question);
-        System.out.println(answer);
+        Boolean adding_is_successful = model.addQuetion(category, question, answer);
+        System.out.println(adding_is_successful);
 
+    }
+
+    private String getCategoryNameFromUser() throws SQLException {
+
+        List<Category> categories = Database.getAllCategories();
+
+        while (true) {
+            String category_name = InputUtility.inputStringValueWithScanner(view.WRITE_CATEGORY);
+            if (category_name.equalsIgnoreCase("Help")) {
+                for (Category ct : categories) {
+                    view.printMessage("| " + ct.getCategory_name() + " |  ");
+                }
+                view.skipLines(1);
+                continue;
+            }
+            for (Category ct : categories) {
+                if (ct.getCategory_name().equalsIgnoreCase(category_name)) {
+                    return category_name;
+                }
+            }
+        }
+
+    }
+
+    private void takeDecision(int action_num) throws SQLException {
+        switch (action_num) {
+            case 1:
+                System.out.println("Game has been started");
+            case 2:
+                insertQuestionIntoDB();
+            case 3:
+                closeProgram();
+        }
+
+    }
+
+    private void closeProgram() {
+        view.printMessage(view.END_DATA);
+        System.exit(0);
     }
 
 }

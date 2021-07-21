@@ -1,8 +1,11 @@
 package model;
 
 import model.db.Database;
+import model.entities.Answer;
 import model.entities.Category;
+import model.entities.Question;
 import model.exceptions.IncorrectSelectedCategoryException;
+import model.exceptions.NonExistentCategoryException;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -21,6 +24,10 @@ public class Model {
             }
         }
         throw new IncorrectSelectedCategoryException();
+    }
+
+    public boolean addQuetion(Category category, Question question, Answer answer) throws SQLException {
+        return Database.addQuestion(category, question, answer);
     }
 
 }
