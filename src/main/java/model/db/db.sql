@@ -1,6 +1,6 @@
 create table categories (
 	category_id serial Primary Key,
-	category_name varchar(128) not null
+	category_name varchar(128) UNIQUE not null
 );
 
 create table questions (

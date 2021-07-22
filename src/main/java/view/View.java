@@ -28,7 +28,7 @@ public class View {
 
     public static final String MESSAGE_FOR_WRONG_TYPE = String.format("%20s", "Некоректний тип для даного поля.");
 
-    public static final String INCORRECT_SELECTED_CATEGORY = String.format("%10s", "Обрана некоректна категорія => ");
+    public static final String INCORRECT_SELECTED_CATEGORY = String.format("%10s", "Обрана некоректна категорія. ");
 
     public static final String PREPARATION_FOR_INSERTING_INTO_DB = String.format("%20s", "Заповніть необхідні поля, аби додати нове питання в гру.");
 

@@ -109,6 +109,7 @@ public class Controller {
                     return category_name;
                 }
             }
+            view.printMessage(view.INCORRECT_SELECTED_CATEGORY);
         }
 
     }

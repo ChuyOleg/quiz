@@ -28,7 +28,7 @@ public class Database {
             List<Category> categories = new ArrayList<>();
 
             while (resultSet.next()) {
-                long category_id = resultSet.getLong("category_id");
+                int category_id = resultSet.getInt("category_id");
                 String category_name = resultSet.getString("category_name");
                 Category category = new Category(category_id, category_name);
                 categories.add(category);
@@ -58,8 +58,8 @@ public class Database {
             List<Question> questions = new ArrayList<>();
 
             while (resultSet.next()) {
-                long question_id = resultSet.getLong("question_id");
-                long category_id = resultSet.getLong("category_id");
+                int question_id = resultSet.getInt("question_id");
+                int category_id = resultSet.getInt("category_id");
                 String question_text = resultSet.getString("question_text");
 
                 Question question = new Question(question_id, category_id, question_text);
@@ -78,7 +78,7 @@ public class Database {
 
     }
 
-    public static Question getQuestion(long question_id) throws SQLException {
+    public static Question getQuestion(int question_id) throws SQLException {
 
         final Connection connection = DriverManager.getConnection(url, user, password);
 
@@ -91,7 +91,7 @@ public class Database {
             final ResultSet resultSet =  stmt.executeQuery();
 
             if (resultSet.next()) {
-                long category_id = resultSet.getLong("category_id");
+                int category_id = resultSet.getInt("category_id");
                 String question_text = resultSet.getString("question_text");
 
                 Question question = new Question(question_id, category_id, question_text);
@@ -129,7 +129,7 @@ public class Database {
             List<Category> categories = new ArrayList<>();
 
             while (resultSet.next()) {
-                long category_id = resultSet.getLong("category_id");
+                int category_id = resultSet.getInt("category_id");
                 String category_name = resultSet.getString("category_name");
 
                 Category category = new Category(category_id, category_name);
@@ -160,7 +160,7 @@ public class Database {
             final ResultSet resultSet = stmt.executeQuery();
 
             if (resultSet.next()) {
-                category.setCategory_id(resultSet.getLong("category_id"));
+                category.setCategory_id(resultSet.getInt("category_id"));
                 question.setCategory_id(category.getCategory_id());
 
                 String query = "INSERT INTO questions(category_id, question_text) values (?, ?)";

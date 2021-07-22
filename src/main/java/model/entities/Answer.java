@@ -2,8 +2,8 @@ package model.entities;
 
 public class Answer {
 
-    private long answer_id;
-    private long question_id;
+    private int answer_id;
+    private int question_id;
     private String answer_1;
     private String answer_2;
     private String answer_3;
@@ -19,7 +19,7 @@ public class Answer {
         this.correct_answer_num = correct_answer_num;
     }
 
-    public Answer(long question_id, String answer_1, String answer_2, String answer_3, int correct_answer_num) {
+    public Answer(int question_id, String answer_1, String answer_2, String answer_3, int correct_answer_num) {
         this.question_id = question_id;
         this.answer_1 = answer_1;
         this.answer_2 = answer_2;
@@ -27,7 +27,7 @@ public class Answer {
         this.correct_answer_num = correct_answer_num;
     }
 
-    public Answer(long answer_id, long question_id, String answer_1, String answer_2, String answer_3, int correct_answer_num) {
+    public Answer(int answer_id, int question_id, String answer_1, String answer_2, String answer_3, int correct_answer_num) {
         this.answer_id = answer_id;
         this.question_id = question_id;
         this.answer_1 = answer_1;
@@ -36,19 +36,19 @@ public class Answer {
         this.correct_answer_num = correct_answer_num;
     }
 
-    public long getAnswer_id() {
+    public int getAnswer_id() {
         return answer_id;
     }
 
-    public void setAnswer_id(long answer_id) {
+    public void setAnswer_id(int answer_id) {
         this.answer_id = answer_id;
     }
 
-    public long getQuestion_id() {
+    public int getQuestion_id() {
         return question_id;
     }
 
-    public void setQuestion_id(long question_id) {
+    public void setQuestion_id(int question_id) {
         this.question_id = question_id;
     }
 
