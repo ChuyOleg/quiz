@@ -1,28 +1,25 @@
-package model.db.dao;
+package model.db.dao.impl;
 
+import model.db.Database;
+import model.db.dao.CategoryDao;
 import model.entities.Category;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
-public class CategoryDAO implements DAO<Category, String> {
-
-    private final Connection connection;
-
-    public CategoryDAO(final Connection connection) {
-        this.connection = connection;
-    }
+public class CategoryDaoImpl implements CategoryDao {
 
     private boolean isExist(String category_name) {
-        return read(category_name).getCategory_id() != -1;
+        return getCategoryByName(category_name).getCategory_id() != -1;
     }
 
     @Override
-    public boolean create(Category category) {
+    public boolean insertCategory(Category category) {
         if (isExist(category.getCategory_name())) return false;
         boolean result = false;
+
+        Connection connection = Database.getConnection();
+        if (connection == null) return false;
+
         try (PreparedStatement stmt = connection.prepareStatement(Query.CREATE.value)) {
             stmt.setString(1, category.getCategory_name());
             result = stmt.executeQuery().next();
@@ -33,9 +30,14 @@ public class CategoryDAO implements DAO<Category, String> {
     }
 
     @Override
-    public Category read(final String category_name) {
+    public Category getCategoryByName(final String category_name) {
         final Category result = new Category();
-        result.setCategory_name(category_name);
+
+        Connection connection = Database.getConnection();
+        if (connection == null) {
+            result.setCategory_id(-1);
+            return result;
+        }
 
         try (PreparedStatement stmt = connection.prepareStatement(Query.READ.value)) {
 
@@ -43,6 +45,7 @@ public class CategoryDAO implements DAO<Category, String> {
 
             final ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
+                result.setCategory_name(category_name);
                 result.setCategory_id(rs.getInt("category_id"));
             } else {
                 result.setCategory_id(-1);
@@ -56,8 +59,12 @@ public class CategoryDAO implements DAO<Category, String> {
     }
 
     @Override
-    public boolean update(Category category) {
+    public boolean updateCategory(Category category) {
         boolean result = false;
+
+        Connection connection = Database.getConnection();
+        if (connection == null) return false;
+
         try (PreparedStatement stmt = connection.prepareStatement(Query.UPDATE.value)) {
             stmt.setString(1, category.getCategory_name());
             stmt.setInt(2, category.getCategory_id());
@@ -69,10 +76,13 @@ public class CategoryDAO implements DAO<Category, String> {
     }
 
     @Override
-    public boolean delete(Category category) {
+    public boolean deleteCategory(Category category) {
         if (!isExist(category.getCategory_name())) return false;
-
         boolean result = false;
+
+        Connection connection = Database.getConnection();
+        if (connection == null) return false;
+
         try (PreparedStatement stmt = connection.prepareStatement(Query.DELETE.value)) {
             stmt.setString(1, category.getCategory_name());
             result = stmt.executeQuery().next();

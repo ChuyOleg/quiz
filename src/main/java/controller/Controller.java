@@ -24,9 +24,6 @@ public class Controller {
 
     public void runProgram() throws SQLException {
 
-//        view.printMessageWithNewLine(view.REQUEST_FOR_FILL_DB);
-//        insertQuestionIntoDB();
-
         while(true) {
 
             view.printMessageWithNewLine(view.INITIAL_CHOICE);
@@ -74,7 +71,6 @@ public class Controller {
     private void insertQuestionIntoDB() throws SQLException {
         view.printMessageWithNewLine(view.PREPARATION_FOR_INSERTING_INTO_DB);
 
-        String category_name = getCategoryNameFromUser();
         String question_text = InputUtility.inputStringValueWithScanner(view.WRITE_QUESTION);
         String answer_1 = InputUtility.inputStringValueWithScanner(view.WRITE_FIRST_ANSWER);
         String answer_2 = InputUtility.inputStringValueWithScanner(view.WRITE_SECOND_ANSWER);
@@ -82,16 +78,18 @@ public class Controller {
         int correct_answer_num = InputUtility.inputIntValueWithScanner(view.DETERMINE_NUMBER_OF_CORRECT_ANSWER, view.MESSAGE_FOR_WRONG_TYPE);
         // generate exception for wrong int value (< 1 or > 3)
 
-        Category category = new Category(category_name);
-        Question question = new Question(question_text);
-        Answer answer = new Answer(answer_1, answer_2, answer_3, correct_answer_num);
+        Category category = getCategoryFromUser();
+        Question question = Question.builder().question_text(question_text).build();
+//        Question question = getQuestionFromUser();
+        Answer answer = Answer.builder().answer_1(answer_1).answer_2(answer_2).answer_3(answer_3).correct_answer_num(correct_answer_num).build();
+//        Answer answer = getAnswerFromUser();
 
         Boolean adding_is_successful = model.addQuetion(category, question, answer);
         System.out.println(adding_is_successful);
 
     }
 
-    private String getCategoryNameFromUser() throws SQLException {
+    private Category getCategoryFromUser() throws SQLException {
 
         List<Category> categories = Database.getAllCategories();
 
@@ -106,7 +104,8 @@ public class Controller {
             }
             for (Category ct : categories) {
                 if (ct.getCategory_name().equalsIgnoreCase(category_name)) {
-                    return category_name;
+                    Category category = Category.builder().category_name(category_name).build();
+                    return category;
                 }
             }
             view.printMessage(view.INCORRECT_SELECTED_CATEGORY);

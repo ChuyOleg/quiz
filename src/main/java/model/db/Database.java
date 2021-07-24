@@ -15,6 +15,15 @@ public class Database {
     private static String user = DB_connectData.getUser();
     private static String password = DB_connectData.getPassword();
 
+    public static Connection getConnection() {
+        try {
+            return DriverManager.getConnection(url, user, password);
+        } catch(SQLException e) {
+            System.out.println("Error during creating connection to Database " + e);
+            return null;
+        }
+    }
+
     public static List<Category> getAllCategories() throws SQLException {
 
         final Connection connection = DriverManager.getConnection(url, user, password);
