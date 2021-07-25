@@ -5,6 +5,7 @@ import model.db.dao.QuestionDao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class QuestionDaoImpl implements QuestionDao {
@@ -15,14 +16,20 @@ public class QuestionDaoImpl implements QuestionDao {
 
         Connection connection = Database.getConnection();
         if (connection == null) {
-//            THINK !!!
-            return result;
+            return false;
         }
 
         try (PreparedStatement stmt = connection.prepareStatement(Query.READ.value)) {
 
-        } catch (SQLException e) {
+            stmt.setString(1, question_text);
 
+            ResultSet resultSet = stmt.executeQuery();
+            if (resultSet.next()) {
+                result = true;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         } finally {
             try {
                 connection.close();

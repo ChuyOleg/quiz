@@ -34,6 +34,8 @@ public class View {
 
     public static final String REQUEST_FOR_FILL_DB = String.format("%90s", "Напишіть `fill_db`, якщо хочете добавити нове питання.");
 
+    public static final String LINE_SEPARATOR = System.lineSeparator();
+
     public static final String END_DATA = String.format("%75s", "Ви успішно вийшли зі гри.");
 
     public void printMessage(String message) {
@@ -46,7 +48,7 @@ public class View {
 
     public void skipLines(int count) {
         for (int i = 0; i < count; i++) {
-            System.out.println("");
+            printMessage(LINE_SEPARATOR);
         }
     }
 
@@ -54,9 +56,9 @@ public class View {
         System.out.println(SELECT_CATEGORY);
         for (Category ct : categories) {
             String category_name = ct.getCategory_name() + " (" + categories.indexOf(ct) + ")";
-            System.out.print(String.format("%33s", category_name));
+            printMessage(String.format("%33s", category_name));
         }
-        System.out.print(System.lineSeparator());
+        printMessage(LINE_SEPARATOR);
     }
 
 }

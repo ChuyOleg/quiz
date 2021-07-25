@@ -1,5 +1,6 @@
 package controller;
 
+import controller.intermediary.Intermediary;
 import controller.validator.Validator_Controller;
 import model.Model;
 import model.db.Database;
@@ -71,45 +72,12 @@ public class Controller {
     private void insertQuestionIntoDB() throws SQLException {
         view.printMessageWithNewLine(view.PREPARATION_FOR_INSERTING_INTO_DB);
 
-        String question_text = InputUtility.inputStringValueWithScanner(view.WRITE_QUESTION);
-        String answer_1 = InputUtility.inputStringValueWithScanner(view.WRITE_FIRST_ANSWER);
-        String answer_2 = InputUtility.inputStringValueWithScanner(view.WRITE_SECOND_ANSWER);
-        String answer_3 = InputUtility.inputStringValueWithScanner(view.WRITE_THIRD_ANSWER);
-        int correct_answer_num = InputUtility.inputIntValueWithScanner(view.DETERMINE_NUMBER_OF_CORRECT_ANSWER, view.MESSAGE_FOR_WRONG_TYPE);
-        // generate exception for wrong int value (< 1 or > 3)
-
-        Category category = getCategoryFromUser();
-        Question question = Question.builder().question_text(question_text).build();
-//        Question question = getQuestionFromUser();
-        Answer answer = Answer.builder().answer_1(answer_1).answer_2(answer_2).answer_3(answer_3).correct_answer_num(correct_answer_num).build();
-//        Answer answer = getAnswerFromUser();
+        Category category = Intermediary.getCategoryFromUser((S) -> view.printMessage(S));
+        Question question = Intermediary.getQuestionFromUser();
+        Answer answer = Intermediary.getAnswerFromUser();
 
         Boolean adding_is_successful = model.addQuetion(category, question, answer);
         System.out.println(adding_is_successful);
-
-    }
-
-    private Category getCategoryFromUser() throws SQLException {
-
-        List<Category> categories = Database.getAllCategories();
-
-        while (true) {
-            String category_name = InputUtility.inputStringValueWithScanner(view.WRITE_CATEGORY);
-            if (category_name.equalsIgnoreCase("Help")) {
-                for (Category ct : categories) {
-                    view.printMessage("| " + ct.getCategory_name() + " |  ");
-                }
-                view.skipLines(1);
-                continue;
-            }
-            for (Category ct : categories) {
-                if (ct.getCategory_name().equalsIgnoreCase(category_name)) {
-                    Category category = Category.builder().category_name(category_name).build();
-                    return category;
-                }
-            }
-            view.printMessage(view.INCORRECT_SELECTED_CATEGORY);
-        }
 
     }
 
