@@ -5,10 +5,7 @@ import model.db.dao.DaoException;
 import model.db.dao.QuestionDao;
 import model.entities.Question;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class QuestionDaoImpl implements QuestionDao {
 
@@ -80,6 +77,43 @@ public class QuestionDaoImpl implements QuestionDao {
 
         return result_id;
 
+    }
+
+    @Override
+    public int insertQuestion(Question question, Connection connection) throws DaoException {
+        if (isExistByText(question.getQuestion_text())) return -1;
+
+        int result_id = -1;
+
+        try (PreparedStatement stmt = connection.prepareStatement(Query.CREATE.value, Statement.RETURN_GENERATED_KEYS)) {
+
+            stmt.setInt(1, question.getCategory_id());
+            stmt.setString(2, question.getQuestion_text());
+
+            System.out.println(question.getCategory_id());
+            System.out.println(question.getQuestion_text());
+
+            int affected_rows = stmt.executeUpdate();
+
+            if (affected_rows == 0) {
+                throw new SQLException("Додавання нового запитання провалилося!");
+            }
+
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    result_id = generatedKeys.getInt(1);
+                } else {
+                    throw new SQLException("Creating new question failed, no ID obtained.");
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Database.closeConnection(connection);
+            throw new DaoException(e.getMessage());
+        }
+
+        return result_id;
     }
 
     enum Query {

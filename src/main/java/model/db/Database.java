@@ -1,6 +1,9 @@
 package model.db;
 
 import model.db.dao.DaoException;
+import model.db.dao.impl.AnswerDaoImpl;
+import model.db.dao.impl.CategoryDaoImpl;
+import model.db.dao.impl.QuestionDaoImpl;
 import model.entities.Answer;
 import model.entities.Category;
 import model.entities.Question;
@@ -15,6 +18,10 @@ public class Database {
     private final static String url = DB_connectData.getUrl();
     private final static String user = DB_connectData.getUser();
     private final static String password = DB_connectData.getPassword();
+
+    private final static AnswerDaoImpl answerDao = new AnswerDaoImpl();
+    private final static CategoryDaoImpl categoryDao = new CategoryDaoImpl();
+    private final static QuestionDaoImpl questionDao = new QuestionDaoImpl();
 
     public static Connection getConnection() {
         try {
@@ -37,7 +44,7 @@ public class Database {
 
     public static void commitToDatabase(Connection connection) throws DaoException {
         try {
-            connection.createStatement();
+            connection.commit();
         } catch (SQLException e) {
             System.out.println("Cannot commit changes to Database");
             e.printStackTrace();
@@ -45,9 +52,13 @@ public class Database {
         }
     }
 
-    public static List<Category> getAllCategories() throws SQLException {
+    public static List<Category> getAllCategories() throws DaoException {
 
-        final Connection connection = DriverManager.getConnection(url, user, password);
+        final Connection connection = getConnection();
+        if (connection == null) {
+            System.out.println("Невдача під час підключення до Бази Даних");
+            throw new DaoException("Cannot connect to Database");
+        }
 
         try (PreparedStatement stmt = connection.prepareStatement("SELECT * FROM categories")) {
 
@@ -67,8 +78,10 @@ public class Database {
 
             return categories;
 
+        } catch (SQLException e) {
+            throw new DaoException("Помилка під час отримання всіх категорій.");
         } finally {
-            connection.close();
+            closeConnection(connection);
         }
 
     }
@@ -170,49 +183,28 @@ public class Database {
 
     }
 
-    public static boolean addQuestion(Category category, Question question, Answer answer) throws SQLException {
+    public static void addQuestion(Category category, Question question, Answer answer) throws DaoException {
 
-        final Connection connection = DriverManager.getConnection(url, user, password);
-
-        connection.setAutoCommit(false);
-
-        try (PreparedStatement stmt = connection.prepareStatement("SELECT * FROM categories where LOWER(category_name) like LOWER(?)")) {
-
-            stmt.setString(1, category.getCategory_name());
-            final ResultSet resultSet = stmt.executeQuery();
-
-            if (resultSet.next()) {
-                category.setCategory_id(resultSet.getInt("category_id"));
-                question.setCategory_id(category.getCategory_id());
-
-                String query = "INSERT INTO questions(category_id, question_text) values (?, ?)";
-                PreparedStatement question_stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-
-                question_stmt.setLong(1, question.getCategory_id());
-                question_stmt.setString(2, question.getQuestion_text());
-
-                question_stmt.executeUpdate();
-                ResultSet generatedKeys = question_stmt.getGeneratedKeys();
-                if (generatedKeys.next()) {
-
-                }
-
-                // get question_id
-                // insert into answers
-                // close all stmt and resultSets
-                // commit into db
-                // make method in controller
-
-                return true;
-
-            }
-
-            return false;
-
-        } finally {
-            connection.close();
+        final Connection connection = getConnection();
+        if (connection == null) {
+            System.out.println("Невдача під час підключення до Бази Даних");
+            throw new DaoException("Cannot connect to Database");
         }
 
+        try {
+            connection.setAutoCommit(false);
+
+            int question_id = questionDao.insertQuestion(question, connection);
+
+            answer.setQuestion_id(question_id);
+            answerDao.insertAnswer(answer, connection);
+//            commitToDatabase(connection);
+        } catch (DaoException | SQLException e) {
+            System.out.println("Помилка під час додавання нового питання юзером");
+            throw new DaoException(e.getMessage());
+        } finally {
+            closeConnection(connection);
+        }
     }
 
 }

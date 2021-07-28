@@ -1,20 +1,27 @@
 package controller.intermediary;
 
 import model.db.Database;
+import model.db.dao.DaoException;
 import model.entities.Answer;
 import model.entities.Category;
 import model.entities.Question;
 import service.InputUtility;
 import view.View;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Consumer;
 
 public class Intermediary {
 
-    public static Category getCategoryFromUser(Consumer<String> printer) throws SQLException {
-        List<Category> categories = Database.getAllCategories();
+    public static Category getCategoryFromUser(Consumer<String> printer) throws DaoException {
+
+        List<Category> categories;
+
+        try {
+            categories = Database.getAllCategories();
+        } catch (DaoException e) {
+            throw new DaoException(e.getMessage());
+        }
 
         while (true) {
             String category_name = InputUtility.inputStringValueWithScanner(View.WRITE_CATEGORY);
@@ -27,18 +34,18 @@ public class Intermediary {
             }
             for (Category ct : categories) {
                 if (ct.getCategory_name().equalsIgnoreCase(category_name)) {
-                    return Category.builder().category_name(category_name).build();
+                    return ct;
                 }
             }
             printer.accept(View.INCORRECT_SELECTED_CATEGORY);
         }
     }
 
-    public static Question getQuestionFromUser() {
+    public static Question getQuestionFromUser(Category category) {
         while (true) {
             String question_text = InputUtility.inputStringValueWithScanner(View.WRITE_QUESTION);
             if (!question_text.equals("")) {
-                return Question.builder().question_text(question_text).build();
+                return Question.builder().question_text(question_text).category_id(category.getCategory_id()).build();
             }
         }
     }

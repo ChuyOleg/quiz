@@ -1,6 +1,7 @@
 package model;
 
 import model.db.Database;
+import model.db.dao.DaoException;
 import model.entities.Answer;
 import model.entities.Category;
 import model.entities.Question;
@@ -26,8 +27,8 @@ public class Model {
         throw new IncorrectSelectedCategoryException();
     }
 
-    public boolean addQuestion(Category category, Question question, Answer answer) throws SQLException {
-        return Database.addQuestion(category, question, answer);
+    public void addQuestion(Category category, Question question, Answer answer) throws DaoException {
+        Database.addQuestion(category, question, answer);
     }
 
 }

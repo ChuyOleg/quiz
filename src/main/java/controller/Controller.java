@@ -4,6 +4,7 @@ import controller.intermediary.Intermediary;
 import controller.validator.Validator_Controller;
 import model.Model;
 import model.db.Database;
+import model.db.dao.DaoException;
 import model.entities.Answer;
 import model.entities.Category;
 import model.entities.Question;
@@ -38,6 +39,7 @@ public class Controller {
                     view.printMessageWithNewLine(e.getMessage());
                 }
             }
+
             view.skipLines(1);
 
             takeDecision(action_num);
@@ -69,31 +71,38 @@ public class Controller {
         return selected_category;
     }
 
-    private void insertQuestionIntoDB() throws SQLException {
+    private void insertQuestionIntoDB() {
         view.printMessageWithNewLine(view.PREPARATION_FOR_INSERTING_INTO_DB);
 
-        Category category = Intermediary.getCategoryFromUser((S) -> view.printMessage(S));
-        Question question = Intermediary.getQuestionFromUser();
+        Category category;
+
+        try {
+            category = Intermediary.getCategoryFromUser((S) -> view.printMessage(S));
+        } catch (DaoException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
+        Question question = Intermediary.getQuestionFromUser(category);
         Answer answer = Intermediary.getAnswerFromUser();
 
-        Boolean adding_is_successful = model.addQuestion(category, question, answer);
-
+        try {
+            model.addQuestion(category, question, answer);
+        } catch (DaoException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     private void takeDecision(int action_num) throws SQLException {
         switch (action_num) {
-            case 1:
-                System.out.println("Game has been started");
-            case 2:
-                insertQuestionIntoDB();
-            case 3:
-                closeProgram();
+            case 1 -> System.out.println("Game has been started");
+            case 2 -> insertQuestionIntoDB();
+            case 3 -> closeProgram();
         }
 
     }
 
     private void closeProgram() {
-        view.printMessage(view.END_DATA);
+        view.printMessage(View.END_DATA);
         System.exit(0);
     }
 
