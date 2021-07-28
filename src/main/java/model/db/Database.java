@@ -1,5 +1,6 @@
 package model.db;
 
+import model.db.dao.DaoException;
 import model.entities.Answer;
 import model.entities.Category;
 import model.entities.Question;
@@ -11,9 +12,9 @@ import java.util.List;
 
 public class Database {
 
-    private static String url = DB_connectData.getUrl();
-    private static String user = DB_connectData.getUser();
-    private static String password = DB_connectData.getPassword();
+    private final static String url = DB_connectData.getUrl();
+    private final static String user = DB_connectData.getUser();
+    private final static String password = DB_connectData.getPassword();
 
     public static Connection getConnection() {
         try {
@@ -24,11 +25,29 @@ public class Database {
         }
     }
 
+    public static void closeConnection(Connection connection) throws DaoException {
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            System.out.println("Cannot close connection to Database");
+            e.printStackTrace();
+            throw new DaoException(e.getMessage());
+        }
+    }
+
+    public static void commitToDatabase(Connection connection) throws DaoException {
+        try {
+            connection.createStatement();
+        } catch (SQLException e) {
+            System.out.println("Cannot commit changes to Database");
+            e.printStackTrace();
+            throw new DaoException(e.getMessage());
+        }
+    }
+
     public static List<Category> getAllCategories() throws SQLException {
 
         final Connection connection = DriverManager.getConnection(url, user, password);
-
-        connection.setAutoCommit(false);
 
         try (PreparedStatement stmt = connection.prepareStatement("SELECT * FROM categories")) {
 
@@ -57,8 +76,6 @@ public class Database {
     public static List<Question> getAllQuestions() throws SQLException {
 
         final Connection connection = DriverManager.getConnection(url, user, password);
-
-        connection.setAutoCommit(false);
 
         try (PreparedStatement stmt = connection.prepareStatement("SELECT * FROM questions")) {
 
@@ -90,8 +107,6 @@ public class Database {
     public static Question getQuestion(int question_id) throws SQLException {
 
         final Connection connection = DriverManager.getConnection(url, user, password);
-
-        connection.setAutoCommit(false);
 
         try (PreparedStatement stmt = connection.prepareStatement("SELECT * FROM questions where question_id = ?")) {
 
@@ -128,8 +143,6 @@ public class Database {
     public static List<Category> getThreeRandomCategories() throws SQLException {
 
         final Connection connection = DriverManager.getConnection(url, user, password);
-
-        connection.setAutoCommit(false);
 
         try (PreparedStatement stmt = connection.prepareStatement("SELECT * FROM getThreeRandomCategories()")) {
 
@@ -197,9 +210,7 @@ public class Database {
             return false;
 
         } finally {
-            System.out.println("Before");
             connection.close();
-            System.out.println("After");
         }
 
     }

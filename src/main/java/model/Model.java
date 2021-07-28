@@ -26,7 +26,7 @@ public class Model {
         throw new IncorrectSelectedCategoryException();
     }
 
-    public boolean addQuetion(Category category, Question question, Answer answer) throws SQLException {
+    public boolean addQuestion(Category category, Question question, Answer answer) throws SQLException {
         return Database.addQuestion(category, question, answer);
     }
 

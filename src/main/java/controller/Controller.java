@@ -76,8 +76,7 @@ public class Controller {
         Question question = Intermediary.getQuestionFromUser();
         Answer answer = Intermediary.getAnswerFromUser();
 
-        Boolean adding_is_successful = model.addQuetion(category, question, answer);
-        System.out.println(adding_is_successful);
+        Boolean adding_is_successful = model.addQuestion(category, question, answer);
 
     }
 
