@@ -12,7 +12,7 @@ public class View {
 
     public static final String NUMBER_IS_OUT_OF_BOUNDARY = "Вказане вами число некоректне. Спробуйте ще раз.";
 
-    public static final String SELECT_CATEGORY = String.format("%60s", "Оберіть категорію => ");
+    public static final String SELECT_CATEGORY = String.format("%70s", "Оберіть категорію.");
 
     public static final String WRITE_CATEGORY = String.format("%20s", "Напишіть категорію (help - показати всі категорії) => ");
 
@@ -37,6 +37,10 @@ public class View {
     public static final String LINE_SEPARATOR = System.lineSeparator();
 
     public static final String END_DATA = String.format("%75s", "Ви успішно вийшли зі гри.");
+
+    public static final String CHOOSE_NUMBER_OF_ROUNDS = "Оберіть кількість раундів (5 | 10 | 15) => ";
+
+    public static final String INCORRECT_NUMBER_OF_ROUNDS = "Обрана невірна кількість раундів.";
 
     public void printMessage(String message) {
         System.out.print(message);

@@ -13,7 +13,7 @@ import java.util.List;
 
 public class Model {
 
-    public List<Category> getThreeRandomCategories() throws SQLException {
+    public List<Category> getThreeRandomCategories() throws DaoException {
         List<Category> three_random_categories = Database.getThreeRandomCategories();
         return three_random_categories;
     }
@@ -27,8 +27,8 @@ public class Model {
         throw new IncorrectSelectedCategoryException();
     }
 
-    public void addQuestion(Category category, Question question, Answer answer) throws DaoException {
-        Database.addQuestion(category, question, answer);
+    public void addQuestion(Question question, Answer answer) throws DaoException {
+        Database.addQuestion(question, answer);
     }
 
 }

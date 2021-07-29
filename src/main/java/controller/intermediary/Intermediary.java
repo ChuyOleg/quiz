@@ -77,4 +77,17 @@ public class Intermediary {
         return Answer.builder().answer_1(answer_1).answer_2(answer_2).answer_3(answer_3).correct_answer_num(correct_answer_num).build();
     }
 
+    public static int getNumberOfRoundsFromUsers(Consumer<String> printer) {
+
+        int number_of_rounds;
+        while (true) {
+            number_of_rounds = InputUtility.inputIntValueWithScanner(View.CHOOSE_NUMBER_OF_ROUNDS, View.MESSAGE_FOR_WRONG_TYPE);
+            if (number_of_rounds == 5 || number_of_rounds == 10 || number_of_rounds == 15) {
+                return number_of_rounds;
+            }
+            printer.accept(View.INCORRECT_NUMBER_OF_ROUNDS);
+        }
+
+    }
+
 }

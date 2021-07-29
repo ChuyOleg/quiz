@@ -7,7 +7,6 @@ import model.db.dao.impl.QuestionDaoImpl;
 import model.entities.Answer;
 import model.entities.Category;
 import model.entities.Question;
-import model.exceptions.NonExistentCategoryException;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -22,6 +21,18 @@ public class Database {
     private final static AnswerDaoImpl answerDao = new AnswerDaoImpl();
     private final static CategoryDaoImpl categoryDao = new CategoryDaoImpl();
     private final static QuestionDaoImpl questionDao = new QuestionDaoImpl();
+
+    enum SQL_QUERY {
+        GET_THREE_RANDOM_CATEGORIES("SELECT * FROM getThreeRandomCategories()"),
+        GET_ALL_CATEGORIES("SELECT * FROM categories");
+
+        final String value;
+
+        SQL_QUERY(String value) {
+            this.value = value;
+        }
+
+    }
 
     public static Connection getConnection() {
         try {
@@ -56,11 +67,10 @@ public class Database {
 
         final Connection connection = getConnection();
         if (connection == null) {
-            System.out.println("Невдача під час підключення до Бази Даних");
             throw new DaoException("Cannot connect to Database");
         }
 
-        try (PreparedStatement stmt = connection.prepareStatement("SELECT * FROM categories")) {
+        try (PreparedStatement stmt = connection.prepareStatement(SQL_QUERY.GET_ALL_CATEGORIES.value)) {
 
             final ResultSet resultSet =  stmt.executeQuery();
 
@@ -86,78 +96,15 @@ public class Database {
 
     }
 
-    public static List<Question> getAllQuestions() throws SQLException {
 
-        final Connection connection = DriverManager.getConnection(url, user, password);
+    public static List<Category> getThreeRandomCategories() throws DaoException {
 
-        try (PreparedStatement stmt = connection.prepareStatement("SELECT * FROM questions")) {
-
-            final ResultSet resultSet =  stmt.executeQuery();
-
-            List<Question> questions = new ArrayList<>();
-
-            while (resultSet.next()) {
-                int question_id = resultSet.getInt("question_id");
-                int category_id = resultSet.getInt("category_id");
-                String question_text = resultSet.getString("question_text");
-
-                Question question = new Question(question_id, category_id, question_text);
-                questions.add(question);
-                System.out.println(question);
-            }
-
-            resultSet.close();
-            stmt.close();
-
-            return questions;
-
-        } finally {
-            connection.close();
+        final Connection connection = getConnection();
+        if (connection == null) {
+            throw new DaoException("Cannot connect to Database");
         }
 
-    }
-
-    public static Question getQuestion(int question_id) throws SQLException {
-
-        final Connection connection = DriverManager.getConnection(url, user, password);
-
-        try (PreparedStatement stmt = connection.prepareStatement("SELECT * FROM questions where question_id = ?")) {
-
-            stmt.setLong(1, question_id);
-
-            final ResultSet resultSet =  stmt.executeQuery();
-
-            if (resultSet.next()) {
-                int category_id = resultSet.getInt("category_id");
-                String question_text = resultSet.getString("question_text");
-
-                Question question = new Question(question_id, category_id, question_text);
-
-                System.out.println(question);
-
-                resultSet.close();
-                stmt.close();
-
-                return question;
-            } else {
-                resultSet.close();
-                stmt.close();
-
-                System.out.println("Haven't foound the question with question id = " + question_id);
-                return null;
-            }
-
-        } finally {
-            connection.close();
-        }
-
-    }
-
-    public static List<Category> getThreeRandomCategories() throws SQLException {
-
-        final Connection connection = DriverManager.getConnection(url, user, password);
-
-        try (PreparedStatement stmt = connection.prepareStatement("SELECT * FROM getThreeRandomCategories()")) {
+        try (PreparedStatement stmt = connection.prepareStatement(SQL_QUERY.GET_THREE_RANDOM_CATEGORIES.value)) {
 
             final ResultSet resultSet =  stmt.executeQuery();
 
@@ -177,17 +124,19 @@ public class Database {
 
             return categories;
 
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            throw new DaoException("Error during getting three random categories");
         } finally {
-            connection.close();
+            closeConnection(connection);
         }
 
     }
 
-    public static void addQuestion(Category category, Question question, Answer answer) throws DaoException {
+    public static void addQuestion(Question question, Answer answer) throws DaoException {
 
         final Connection connection = getConnection();
         if (connection == null) {
-            System.out.println("Невдача під час підключення до Бази Даних");
             throw new DaoException("Cannot connect to Database");
         }
 
@@ -198,7 +147,7 @@ public class Database {
 
             answer.setQuestion_id(question_id);
             answerDao.insertAnswer(answer, connection);
-//            commitToDatabase(connection);
+            commitToDatabase(connection);
         } catch (DaoException | SQLException e) {
             System.out.println("Помилка під час додавання нового питання юзером");
             throw new DaoException(e.getMessage());
