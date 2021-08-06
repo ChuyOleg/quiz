@@ -36,7 +36,9 @@ public class Database {
 
     public static Connection getConnection() {
         try {
-            return DriverManager.getConnection(url, user, password);
+            Connection connection = DriverManager.getConnection(url, user, password);
+            connection.setAutoCommit(false);
+            return connection;
         } catch(SQLException e) {
             System.out.println("Error during creating connection to Database " + e);
             return null;
@@ -141,14 +143,12 @@ public class Database {
         }
 
         try {
-            connection.setAutoCommit(false);
-
             int question_id = questionDao.insertQuestion(question, connection);
 
             answer.setQuestion_id(question_id);
             answerDao.insertAnswer(answer, connection);
             commitToDatabase(connection);
-        } catch (DaoException | SQLException e) {
+        } catch (DaoException e) {
             System.out.println("Помилка під час додавання нового питання юзером");
             throw new DaoException(e.getMessage());
         } finally {
