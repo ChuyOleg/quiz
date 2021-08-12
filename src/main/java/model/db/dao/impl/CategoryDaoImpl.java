@@ -2,42 +2,40 @@ package model.db.dao.impl;
 
 import model.db.Database;
 import model.db.dao.CategoryDao;
+import model.db.dao.DaoException;
 import model.entities.Category;
 
 import java.sql.*;
 
 public class CategoryDaoImpl implements CategoryDao {
 
-    private boolean isExist(String category_name) {
-        return getCategoryByName(category_name).getCategory_id() != -1;
+    private boolean isExist(String category_name) throws DaoException {
+        Connection connection = Database.getConnection();
+
+        try {
+            return getCategoryByName(category_name, connection).getCategory_id() != -1;
+        } finally {
+            Database.closeConnection(connection);
+        }
     }
 
     @Override
-    public boolean insertCategory(Category category) {
+    public boolean insertCategory(final Category category, final Connection connection) throws DaoException {
         if (isExist(category.getCategory_name())) return false;
-        boolean result = false;
-
-        Connection connection = Database.getConnection();
-        if (connection == null) return false;
 
         try (PreparedStatement stmt = connection.prepareStatement(Query.CREATE.value)) {
             stmt.setString(1, category.getCategory_name());
-            result = stmt.executeQuery().next();
+            return stmt.executeQuery().next();
         } catch (SQLException e) {
             e.printStackTrace();
+            Database.closeConnection(connection);
+            throw new DaoException(e.getMessage());
         }
-        return result;
     }
 
     @Override
-    public Category getCategoryByName(final String category_name) {
+    public Category getCategoryByName(final String category_name, final Connection connection) throws DaoException {
         final Category result = new Category();
-
-        Connection connection = Database.getConnection();
-        if (connection == null) {
-            result.setCategory_id(-1);
-            return result;
-        }
 
         try (PreparedStatement stmt = connection.prepareStatement(Query.READ.value)) {
 
@@ -53,43 +51,38 @@ public class CategoryDaoImpl implements CategoryDao {
 
         } catch (SQLException e) {
             e.printStackTrace();
+            Database.closeConnection(connection);
+            throw new DaoException(e.getMessage());
         }
 
         return result;
     }
 
     @Override
-    public boolean updateCategory(Category category) {
-        boolean result = false;
-
-        Connection connection = Database.getConnection();
-        if (connection == null) return false;
-
+    public boolean updateCategory(final Category category, final Connection connection) throws DaoException {
         try (PreparedStatement stmt = connection.prepareStatement(Query.UPDATE.value)) {
             stmt.setString(1, category.getCategory_name());
             stmt.setInt(2, category.getCategory_id());
-            result = stmt.executeQuery().next();
+            return stmt.executeQuery().next();
         } catch (SQLException e) {
             e.printStackTrace();
+            Database.closeConnection(connection);
+            throw new DaoException(e.getMessage());
         }
-        return result;
     }
 
     @Override
-    public boolean deleteCategory(Category category) {
+    public boolean deleteCategory(final Category category, final Connection connection) throws DaoException {
         if (!isExist(category.getCategory_name())) return false;
-        boolean result = false;
-
-        Connection connection = Database.getConnection();
-        if (connection == null) return false;
 
         try (PreparedStatement stmt = connection.prepareStatement(Query.DELETE.value)) {
             stmt.setString(1, category.getCategory_name());
-            result = stmt.executeQuery().next();
+            return stmt.executeQuery().next();
         } catch (SQLException e) {
             e.printStackTrace();
+            Database.closeConnection(connection);
+            throw new DaoException(e.getMessage());
         }
-        return result;
     }
 
     enum Query {

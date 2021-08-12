@@ -14,9 +14,6 @@ public class QuestionDaoImpl implements QuestionDao {
         boolean result = false;
 
         Connection connection = Database.getConnection();
-        if (connection == null) {
-            return false;
-        }
 
         try (PreparedStatement stmt = connection.prepareStatement(Query.READ.value)) {
 
@@ -31,11 +28,7 @@ public class QuestionDaoImpl implements QuestionDao {
             e.printStackTrace();
             throw new DaoException(e.getMessage());
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                System.out.println("Cannot close connection " + e);
-            }
+            Database.closeConnection(connection);
         }
         return result;
     }

@@ -34,20 +34,26 @@ public class Database {
 
     }
 
-    public static Connection getConnection() {
+    public static Connection getConnection() throws DaoException {
+        Connection connection = null;
         try {
-            Connection connection = DriverManager.getConnection(url, user, password);
+            connection = DriverManager.getConnection(url, user, password);
             connection.setAutoCommit(false);
             return connection;
         } catch(SQLException e) {
+            if (connection != null) {
+                closeConnection(connection);
+            }
             System.out.println("Error during creating connection to Database " + e);
-            return null;
+            throw new DaoException(e.getMessage());
         }
     }
 
     public static void closeConnection(Connection connection) throws DaoException {
         try {
-            connection.close();
+            if (connection != null && (!connection.isClosed())) {
+                connection.close();
+            }
         } catch (SQLException e) {
             System.out.println("Cannot close connection to Database");
             e.printStackTrace();
@@ -68,9 +74,6 @@ public class Database {
     public static List<Category> getAllCategories() throws DaoException {
 
         final Connection connection = getConnection();
-        if (connection == null) {
-            throw new DaoException("Cannot connect to Database");
-        }
 
         try (PreparedStatement stmt = connection.prepareStatement(SQL_QUERY.GET_ALL_CATEGORIES.value)) {
 
@@ -102,9 +105,6 @@ public class Database {
     public static List<Category> getThreeRandomCategories() throws DaoException {
 
         final Connection connection = getConnection();
-        if (connection == null) {
-            throw new DaoException("Cannot connect to Database");
-        }
 
         try (PreparedStatement stmt = connection.prepareStatement(SQL_QUERY.GET_THREE_RANDOM_CATEGORIES.value)) {
 
@@ -138,9 +138,6 @@ public class Database {
     public static void addQuestion(Question question, Answer answer) throws DaoException {
 
         final Connection connection = getConnection();
-        if (connection == null) {
-            throw new DaoException("Cannot connect to Database");
-        }
 
         try {
             int question_id = questionDao.insertQuestion(question, connection);
