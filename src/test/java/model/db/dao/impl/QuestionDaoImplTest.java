@@ -50,4 +50,28 @@ public class QuestionDaoImplTest {
             Database.closeConnection(connection);
         }
     }
+
+    @Test
+    public void getQuestionByText() throws DaoException {
+
+        Connection connection = Database.getConnection();
+
+        try {
+            final String question_text = "Дата заснування Збройних Сил України";
+            final String fake_question_text = "FAKE";
+
+            Question question;
+
+            question = questionDao.getQuestionByText(question_text, connection);
+            Assert.assertNotEquals(question.getQuestion_id(), -1);
+            Assert.assertEquals(question.getQuestion_text(), question_text);
+
+            question = questionDao.getQuestionByText(fake_question_text, connection);
+            Assert.assertEquals(question.getQuestion_id(), -1);
+
+        } finally {
+            Database.closeConnection(connection);
+        }
+
+    }
 }

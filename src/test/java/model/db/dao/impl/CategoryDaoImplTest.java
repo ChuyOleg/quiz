@@ -61,10 +61,28 @@ public class CategoryDaoImplTest {
     }
 
     @Test
-    public void updateCategory() {
+    public void updateCategory() throws DaoException {
+
+        Connection connection = Database.getConnection();
+        String old_category_name = "Історія";
+        String updated_category_name = "Історія 2";
+
+        try {
+            Category category = categoryDao.getCategoryByName(old_category_name, connection);
+            category.setCategory_name(updated_category_name);
+
+            boolean updating_result = categoryDao.updateCategory(category, connection);
+
+            Category updated_category = categoryDao.getCategoryByName(updated_category_name, connection);
+
+            Assert.assertTrue(updating_result);
+            Assert.assertEquals(category.getCategory_id(), updated_category.getCategory_id());
+            Assert.assertEquals(updated_category.getCategory_name(), updated_category_name);
+
+        } finally {
+            Database.closeConnection(connection);
+        }
+
     }
 
-    @Test
-    public void deleteCategory() {
-    }
 }

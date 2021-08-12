@@ -8,5 +8,4 @@ public interface CategoryDao {
     boolean insertCategory(Category category, Connection connection) throws DaoException;
     Category getCategoryByName(String category_name, Connection connection) throws DaoException;
     boolean updateCategory(Category category, Connection connection) throws DaoException;
-    boolean deleteCategory(Category category, Connection connection) throws DaoException;
 }

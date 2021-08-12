@@ -9,7 +9,6 @@ import java.sql.*;
 
 public class AnswerDaoImpl implements AnswerDao {
 
-
     @Override
     public int insertAnswer(Answer answer, Connection connection) throws DaoException {
 

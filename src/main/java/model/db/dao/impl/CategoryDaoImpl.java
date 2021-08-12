@@ -71,25 +71,10 @@ public class CategoryDaoImpl implements CategoryDao {
         }
     }
 
-    @Override
-    public boolean deleteCategory(final Category category, final Connection connection) throws DaoException {
-        if (!isExist(category.getCategory_name())) return false;
-
-        try (PreparedStatement stmt = connection.prepareStatement(Query.DELETE.value)) {
-            stmt.setString(1, category.getCategory_name());
-            return stmt.executeQuery().next();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            Database.closeConnection(connection);
-            throw new DaoException(e.getMessage());
-        }
-    }
-
     enum Query {
         CREATE("INSERT INTO categories(category_name) VALUES(?) returning category_id"),
         READ("SELECT * FROM categories WHERE category_name LIKE (?)"),
-        UPDATE("UPDATE categories SET category_name = (?) WHERE category_id = (?) returning category_id"),
-        DELETE("DELETE FROM categories WHERE category_name LIKE (?) returning category_id");
+        UPDATE("UPDATE categories SET category_name = (?) WHERE category_id = (?) returning category_id");
 
         public final String value;
 

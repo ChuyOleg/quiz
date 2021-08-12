@@ -11,26 +11,13 @@ public class QuestionDaoImpl implements QuestionDao {
 
     @Override
     public boolean isExistByText(String question_text) throws DaoException {
-        boolean result = false;
-
         Connection connection = Database.getConnection();
 
-        try (PreparedStatement stmt = connection.prepareStatement(Query.READ.value)) {
-
-            stmt.setString(1, question_text);
-
-            ResultSet resultSet = stmt.executeQuery();
-            if (resultSet.next()) {
-                result = true;
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new DaoException(e.getMessage());
+        try {
+            return (getQuestionByText(question_text, connection).getQuestion_id() != -1);
         } finally {
             Database.closeConnection(connection);
         }
-        return result;
     }
 
     @Override
@@ -65,6 +52,30 @@ public class QuestionDaoImpl implements QuestionDao {
         }
 
         return result_id;
+    }
+
+    public Question getQuestionByText(final String text, final Connection connection) throws DaoException {
+        final Question question = new Question();
+
+        try (PreparedStatement stmt = connection.prepareStatement(Query.READ.value)) {
+
+            stmt.setString(1, text);
+
+            ResultSet resultSet = stmt.executeQuery();
+            if (resultSet.next()) {
+                question.setQuestion_id(resultSet.getInt("question_id"));
+                question.setCategory_id(resultSet.getInt("category_id"));
+                question.setQuestion_text(text);
+            } else {
+                question.setQuestion_id(-1);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Database.closeConnection(connection);
+            throw new DaoException(e.getMessage());
+        }
+        return question;
     }
 
     enum Query {
