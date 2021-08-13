@@ -20,10 +20,25 @@ create table answers (
 );
 
 -- function for getting 3 random categories
-CREATE OR REPLACE FUNCTION getThreeRandomCategories()
-	returns table (category_id int, category_name varchar(128)) as $$
+    CREATE OR REPLACE FUNCTION getThreeRandomCategories()
+        returns table (category_id int, category_name varchar(128)) as $$
+    BEGIN
+        RETURN QUERY
+            SELECT * FROM categories ORDER BY random() LIMIT 3;
+    END;
+    $$ LANGUAGE plpgsql;
+
+-- function for getting (n) random questions by category_name
+CREATE OR REPLACE FUNCTION getRandomQuestions(int, text)
+	RETURNS TABLE (question_id int, category_id int, question_text text) as $$
+DECLARE
+	cat_id int;
 BEGIN
+	SELECT categories.category_id FROM categories WHERE category_name LIKE $2 INTO cat_id;
 	RETURN QUERY
-		SELECT * FROM categories ORDER BY random() LIMIT 3;
+		SELECT * FROM questions
+		where questions.category_id = cat_id
+		ORDER BY random()
+		LIMIT $1;
 END;
 $$ LANGUAGE plpgsql;

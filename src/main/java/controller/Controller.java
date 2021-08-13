@@ -6,11 +6,11 @@ import model.Model;
 import model.db.dao.DaoException;
 import model.entities.Answer;
 import model.entities.Category;
+import model.entities.Game;
 import model.entities.Question;
 import service.InputUtility;
 import view.View;
 
-import java.sql.SQLException;
 import java.util.List;
 
 public class Controller {
@@ -23,7 +23,7 @@ public class Controller {
         model = new Model();
     }
 
-    public void runProgram() throws SQLException {
+    public void runProgram() {
 
         while(true) {
 
@@ -42,16 +42,6 @@ public class Controller {
             view.skipLines(1);
 
             takeDecision(action_num);
-//            view.skipLines(1);
-//            Category selected_category = usersPickCategory();
-//            view.printMessageWithNewLine(selected_category.getCategory_name());
-
-//          get randomQuestion
-
-//            Database db = new Database();
-//            List<Category> categories = db.getAllCategories();
-//            List<Question> questions = db.getAllQuestions();
-//            Question randomQuestion = db.getQuestion(2);
         }
     }
 
@@ -95,32 +85,59 @@ public class Controller {
 
     private void startGame() {
 
-        // create new class `Game` !!!
+        int number_of_rounds = Intermediary.getNumberOfSmthFromUsers(view::printMessageWithNewLine, View.CHOOSE_NUMBER_OF_ROUNDS);
+        int number_of_questions = Intermediary.getNumberOfSmthFromUsers(view::printMessageWithNewLine, View.CHOOSE_NUMBER_OF_QUESTIONS);
 
-        int number_of_rounds = Intermediary.getNumberOfRoundsFromUsers(view::printMessageWithNewLine);
+        Game game = Game.builder().max_rounds(number_of_rounds).max_questions(number_of_questions).build();
 
-        for (int round_num = 0; round_num < number_of_rounds; round_num++) {
+        for (int round_num = 0; round_num < game.getMax_rounds(); round_num++) {
             Category selected_category;
             while (true) {
                 try {
-                    usersPickCategory();
+                    selected_category = usersPickCategory();
                     break;
                 } catch (DaoException e) {
                     view.printMessageWithNewLine(e.getMessage());
                 }
             }
 
-            for (int question_num = 0; question_num < 5; question_num++) {
-                // delete this  text
-                System.out.println("question_num = " + question_num);
-                String answer = InputUtility.inputStringValueWithScanner("Write something");
+            List<Question> questions;
+            try {
+                questions = model.get_n_RandomQuestionsByCategoryName(game.getMax_questions(), selected_category.getCategory_name());
+            } catch (DaoException e) {
+                view.printMessageWithNewLine("Сталася помилка при отриманні питань з Бази Даних.");
+                continue;
             }
+
+            for (Question question : questions) {
+
+                Answer answer;
+                try {
+                    answer = model.getAnswerByQuestion(question);
+                } catch (DaoException e) {
+                    view.printMessageWithNewLine("Не вдалося отримати відповіді на запитання з Бази Даних");
+                    continue;
+                }
+
+                System.out.println("Запитання => " + question.getQuestion_text());
+                System.out.println("1) " + answer.getAnswer_1());
+                System.out.println("2) " + answer.getAnswer_2());
+                System.out.println("3) " + answer.getAnswer_3());
+                String user_answer = InputUtility.inputStringValueWithScanner("Вкажіть відповідь ");
+
+
+
+                game.setCurrent_question_num(game.getCurrent_question_num() + 1);
+
+            }
+
+            game.setCurrent_round_num(round_num);
 
         }
 
     }
 
-    private void takeDecision(int action_num) throws SQLException {
+    private void takeDecision(int action_num) {
         switch (action_num) {
             case 1 -> startGame();
             case 2 -> insertQuestionIntoDB();

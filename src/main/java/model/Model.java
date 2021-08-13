@@ -6,16 +6,13 @@ import model.entities.Answer;
 import model.entities.Category;
 import model.entities.Question;
 import model.exceptions.IncorrectSelectedCategoryException;
-import model.exceptions.NonExistentCategoryException;
 
-import java.sql.SQLException;
 import java.util.List;
 
 public class Model {
 
     public List<Category> getThreeRandomCategories() throws DaoException {
-        List<Category> three_random_categories = Database.getThreeRandomCategories();
-        return three_random_categories;
+        return Database.getThreeRandomCategories();
     }
 
     public Category getCategoryByUsersPick(List<Category> categories, String action) throws IncorrectSelectedCategoryException {
@@ -29,6 +26,14 @@ public class Model {
 
     public void addQuestion(Question question, Answer answer) throws DaoException {
         Database.addQuestion(question, answer);
+    }
+
+    public List<Question> get_n_RandomQuestionsByCategoryName(int num_of_questions, String category_name) throws DaoException {
+        return Database.get_n_RandomQuestionsByCategoryName(num_of_questions, category_name);
+    }
+
+    public Answer getAnswerByQuestion(Question question) throws DaoException {
+        return Database.getAnswerByQuestion(question);
     }
 
 }

@@ -24,7 +24,9 @@ public class Database {
 
     enum SQL_QUERY {
         GET_THREE_RANDOM_CATEGORIES("SELECT * FROM getThreeRandomCategories()"),
-        GET_ALL_CATEGORIES("SELECT * FROM categories");
+        GET_ALL_CATEGORIES("SELECT * FROM categories"),
+        GET_N_RANDOM_QUESTIONS_BY_CATEGORY_NAME("SELECT * FROM getRandomQuestions(?, ?)"),
+        GET_ANSWER_BY_QUESTION_ID("SELECT * FROM answers WHERE question_id = ?");
 
         final String value;
 
@@ -129,6 +131,77 @@ public class Database {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             throw new DaoException("Error during getting three random categories");
+        } finally {
+            closeConnection(connection);
+        }
+
+    }
+
+    public static List<Question> get_n_RandomQuestionsByCategoryName(int num_of_questions, String category_name) throws DaoException {
+
+        final Connection connection = getConnection();
+
+        try (PreparedStatement stmt = connection.prepareStatement(SQL_QUERY.GET_N_RANDOM_QUESTIONS_BY_CATEGORY_NAME.value)) {
+
+            stmt.setInt(1, num_of_questions);
+            stmt.setString(2, category_name);
+
+            final ResultSet resultSet =  stmt.executeQuery();
+
+            List<Question> questions = new ArrayList<>();
+
+            while (resultSet.next()) {
+                int question_id = resultSet.getInt("question_id");
+                int category_id = resultSet.getInt("category_id");
+                String question_text = resultSet.getString("question_text");
+
+                Question question = new Question(question_id, category_id, question_text);
+
+                questions.add(question);
+
+            }
+
+            resultSet.close();
+
+            return questions;
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            throw new DaoException("Error during getting random questions");
+        } finally {
+            closeConnection(connection);
+        }
+
+    }
+
+    public static Answer getAnswerByQuestion(Question question) throws DaoException {
+
+        final Connection connection = getConnection();
+
+        try (PreparedStatement stmt = connection.prepareStatement(SQL_QUERY.GET_ANSWER_BY_QUESTION_ID.value)) {
+
+            stmt.setInt(1, question.getQuestion_id());
+
+            final ResultSet resultSet =  stmt.executeQuery();
+
+            Answer answer = new Answer();
+
+            while (resultSet.next()) {
+                answer.setAnswer_id(resultSet.getInt("answer_id"));
+                answer.setQuestion_id(resultSet.getInt("question_id"));
+                answer.setAnswer_1(resultSet.getString("answer_1"));
+                answer.setAnswer_2(resultSet.getString("answer_2"));
+                answer.setAnswer_3(resultSet.getString("answer_3"));
+                answer.setCorrect_answer_num(resultSet.getInt("correct_answer_num"));
+            }
+
+            resultSet.close();
+
+            return answer;
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            throw new DaoException("Error during getting answers to questions");
         } finally {
             closeConnection(connection);
         }

@@ -40,6 +40,8 @@ public class View {
 
     public static final String CHOOSE_NUMBER_OF_ROUNDS = "Оберіть кількість раундів (5 | 10 | 15) => ";
 
+    public static final String CHOOSE_NUMBER_OF_QUESTIONS = "Оберіть кількість питань у раунді (3 | 5) => ";
+
     public static final String INCORRECT_NUMBER_OF_ROUNDS = "Обрана невірна кількість раундів.";
 
     public void printMessage(String message) {
